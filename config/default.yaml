@@ -1,0 +1,50 @@
+project:
+  name: voltcast
+  config_version: "1.0.0"
+  random_seed: 42
+
+paths:
+  raw_dir: "data/raw"
+  raw_filename: "household_power_consumption.txt"
+  raw_zip_url: "https://archive.ics.uci.edu/static/public/235/individual+household+electric+power+consumption.zip"
+  artifacts_dir: "artifacts/full"
+  smoke_artifacts_dir: "artifacts/smoke"
+
+data:
+  timezone_note: "Source local clock preserved as naive timestamps (Europe/Paris local clock as recorded in UCI dataset)."
+  min_valid_minutes_target: 45
+  min_valid_minutes_circuit_full_hour: 60
+
+splits:
+  train_frac: 0.70
+  val_frac: 0.15
+  test_frac: 0.15
+
+features:
+  lags_from_target_hours: [1, 2, 3, 24, 48, 168]
+  rolling_windows_hours: [3, 6, 24]
+
+regression:
+  cv_splits: 3
+  primary_metric: "mae_kw"
+  rf_n_estimators: 60
+  gb_n_estimators: 60
+  max_depth_grid: [4, 8, 12]
+  alpha_grid: [0.01, 0.1, 1.0, 10.0]
+
+classification:
+  peak_quantile: 0.90
+  min_precision_for_recall_opt: 0.50
+  cv_splits: 3
+  knn_neighbors_grid: [5, 11, 21]
+
+pca:
+  variance_threshold: 0.90
+
+clustering:
+  k_candidates: [2, 3, 4, 5]
+  zero_day_eps: 1.0e-6
+
+profile_forecast:
+  max_lookback_days: 7
+  min_segment_train_rows: 100
