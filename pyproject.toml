@@ -14,3 +14,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = [
+    "ignore::pyparsing.warnings.PyparsingDeprecationWarning:matplotlib.*",
+    "ignore:Could not find the number of physical cores:UserWarning:joblib.*",
+]

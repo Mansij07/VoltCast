@@ -40,7 +40,7 @@ def _build_regression_specs(cfg: dict[str, Any]) -> dict[str, tuple[Pipeline, di
             {"reg__alpha": alphas},
         ),
         "lasso": (
-            Pipeline([("imp", SimpleImputer(strategy="median")), ("scaler", StandardScaler()), ("reg", Lasso(random_state=seed, max_iter=3000))]),
+            Pipeline([("imp", SimpleImputer(strategy="median")), ("scaler", StandardScaler()), ("reg", Lasso(random_state=seed, max_iter=10000))]),
             {"reg__alpha": alphas},
         ),
         "decision_tree": (

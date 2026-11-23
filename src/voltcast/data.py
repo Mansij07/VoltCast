@@ -94,7 +94,7 @@ def generate_synthetic_raw_fixture(out_path: Path, days: int = 35, seed: int = 4
         "Sub_metering_3": np.round(sub3, 2),
     })
 
-    # Inject a small missing block with '?' to exercise cleaning logic
+    df[NUMERIC_COLS] = df[NUMERIC_COLS].astype(object)
     df.loc[500:525, NUMERIC_COLS] = "?"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out_path, sep=";", index=False)
