@@ -10,7 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
@@ -128,6 +128,29 @@ def run_profiles_stage(cfg: dict[str, Any], artifacts_dir: Path) -> Path:
     fig.tight_layout()
     fig.savefig(artifacts_dir / "plots" / "daily_load_profiles.png", dpi=120)
     plt.close(fig)
+
+    hc_labels_best = fcluster(Z, t=best_k, criterion="maxclust") - 1
+    hc_curves = train_days.assign(cluster=hc_labels_best).groupby("cluster").mean()
+    fig, axes = plt.subplots(1, 2, figsize=(14, 4.5))
+    dendrogram(Z, truncate_mode="lastp", p=30, ax=axes[0], color_threshold=Z[-(best_k - 1), 2] if best_k > 1 else None)
+    axes[0].set_title(f"Ward Dendrogram of Training Days (truncated, cut at k={best_k})")
+    axes[0].set_xlabel("Day clusters (size in brackets)")
+    axes[0].set_ylabel("Ward distance")
+    for c_id, row in hc_curves.iterrows():
+        n_c = int((hc_labels_best == c_id).sum())
+        axes[1].plot(range(24), row.values, marker="o", label=f"HC cluster {c_id} (n={n_c})")
+    axes[1].set_title(f"Hierarchical (Ward) Daily Profiles, k={best_k}")
+    axes[1].set_xlabel("Hour of Day")
+    axes[1].set_ylabel("Mean Active Power (kW)")
+    axes[1].legend()
+    axes[1].grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(artifacts_dir / "plots" / "hierarchical_profiles.png", dpi=120)
+    plt.close(fig)
+
+    km_train_labels = train_days_labeled["cluster"].to_numpy()
+    agreement = pd.crosstab(pd.Series(km_train_labels, name="kmeans"), pd.Series(hc_labels_best, name="hierarchical"))
+    agreement.to_csv(artifacts_dir / "kmeans_vs_hierarchical_crosstab.csv")
 
     save_manifest(
         artifacts_dir,

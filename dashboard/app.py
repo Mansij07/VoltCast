@@ -27,7 +27,7 @@ tabs = st.tabs(["1. Data & EDA", "2. Regression", "3. Peak Classification", "4. 
 with tabs[0]:
     q = json.loads((art_dir / "data_quality_summary.json").read_text(encoding="utf-8"))
     st.json(q)
-    for img in ["eda_hourly_weekday_weekend.png", "eda_distribution_missingness.png", "eda_correlations.png", "eda_submetering_hourly.png"]:
+    for img in ["eda_hourly_weekday_weekend.png", "eda_distribution_missingness.png", "eda_correlations.png", "eda_submetering_hourly.png", "eda_seasonal.png"]:
         p = art_dir / "plots" / img
         if p.exists():
             st.image(str(p), use_column_width=True)
@@ -37,9 +37,10 @@ with tabs[1]:
     st.dataframe(pd.read_csv(art_dir / "regression_metrics.csv"), use_container_width=True)
     st.subheader("Naive Baselines")
     st.dataframe(pd.read_csv(art_dir / "baseline_metrics.csv"), use_container_width=True)
-    p = art_dir / "plots" / "regression_diagnostics.png"
-    if p.exists():
-        st.image(str(p), use_column_width=True)
+    for img in ["regression_diagnostics.png", "regression_importance.png"]:
+        p = art_dir / "plots" / img
+        if p.exists():
+            st.image(str(p), use_column_width=True)
 
 with tabs[2]:
     st.subheader(f"Peak Classification (Train 90th-pct cutoff = {manifest['peak_kw_cutoff']:.3f} kW)")
@@ -51,12 +52,14 @@ with tabs[2]:
 with tabs[3]:
     st.subheader("PCA Variance Explained")
     st.dataframe(pd.read_csv(art_dir / "pca_variance.csv").head(10), use_container_width=True)
-    if (art_dir / "plots" / "pca_scree.png").exists():
-        st.image(str(art_dir / "plots" / "pca_scree.png"), use_column_width=True)
+    for img in ["pca_scree.png", "pca_loadings.png"]:
+        if (art_dir / "plots" / img).exists():
+            st.image(str(art_dir / "plots" / img), use_column_width=True)
     st.subheader("Daily Load Profiles")
     st.dataframe(pd.read_csv(art_dir / "clustering_comparison.csv"), use_container_width=True)
-    if (art_dir / "plots" / "daily_load_profiles.png").exists():
-        st.image(str(art_dir / "plots" / "daily_load_profiles.png"), use_column_width=True)
+    for img in ["daily_load_profiles.png", "hierarchical_profiles.png"]:
+        if (art_dir / "plots" / img).exists():
+            st.image(str(art_dir / "plots" / img), use_column_width=True)
 
 with tabs[4]:
     st.subheader("Global vs Profile-Aware Comparison (Identical Test Timestamps)")

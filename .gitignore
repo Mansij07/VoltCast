@@ -9,3 +9,6 @@ artifacts/
 *.egg-info/
 dist/
 build/
+
+# Presentation deliverables (kept local)
+presentation/

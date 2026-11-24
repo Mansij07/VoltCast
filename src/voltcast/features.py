@@ -15,7 +15,8 @@ FEATURE_COLUMNS = [
     "target_dow_sin",
     "target_dow_cos",
     "is_weekend",
-    "target_month",
+    "target_month_sin",
+    "target_month_cos",
     "active_kw_origin",
     "active_kw_lag_2h_from_target",
     "active_kw_lag_3h_from_target",
@@ -94,7 +95,9 @@ def build_feature_table(hourly: pd.DataFrame, cfg: dict[str, Any]) -> tuple[pd.D
     out["target_dow_sin"] = np.sin(2 * np.pi * dow / 7.0)
     out["target_dow_cos"] = np.cos(2 * np.pi * dow / 7.0)
     out["is_weekend"] = (dow >= 5).astype(int)
-    out["target_month"] = out["target_hour"].dt.month
+    month = out["target_hour"].dt.month
+    out["target_month_sin"] = np.sin(2 * np.pi * (month - 1) / 12.0)
+    out["target_month_cos"] = np.cos(2 * np.pi * (month - 1) / 12.0)
 
     # Causal lags: shift(1) is origin_hour (t = target_hour - 1h)
     active = df["active_kw_mean"]

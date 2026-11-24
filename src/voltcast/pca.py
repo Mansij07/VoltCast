@@ -9,6 +9,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
@@ -64,5 +65,19 @@ def run_pca_stage(cfg: dict[str, Any], artifacts_dir: Path) -> Path:
     fig.savefig(artifacts_dir / "plots" / "pca_scree.png", dpi=120)
     plt.close(fig)
 
-    save_manifest(artifacts_dir, {"pca_variance_path": str(var_path), "pca_loadings_path": str(loadings_path)})
+    n_for_threshold = int(np.searchsorted(cum, cfg["pca"]["variance_threshold"]) + 1)
+    n_show = min(len(evr), max(4, n_for_threshold))
+    fig, ax = plt.subplots(figsize=(1.0 * n_show + 4, 9))
+    sns.heatmap(loadings.iloc[:, :n_show], cmap="coolwarm", center=0, annot=True, fmt=".2f",
+                annot_kws={"size": 7}, ax=ax, cbar_kws={"label": "Loading"})
+    ax.set_title(f"PCA Loadings (first {n_show} components, {cum[n_show - 1]:.0%} cumulative variance)")
+    fig.tight_layout()
+    fig.savefig(artifacts_dir / "plots" / "pca_loadings.png", dpi=120)
+    plt.close(fig)
+
+    save_manifest(artifacts_dir, {
+        "pca_variance_path": str(var_path),
+        "pca_loadings_path": str(loadings_path),
+        "pca_components_for_variance_threshold": n_for_threshold,
+    })
     return var_path

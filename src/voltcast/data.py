@@ -272,6 +272,25 @@ def generate_eda_plots(hourly: pd.DataFrame, plots_dir: Path) -> list[str]:
     fig.savefig(p4, dpi=120)
     plt.close(fig)
     saved.append(str(p4))
+
+    # 5. Seasonal patterns: monthly mean and month x hour heatmap
+    fig, axes = plt.subplots(1, 2, figsize=(13, 4.5), gridspec_kw={"width_ratios": [1, 1.6]})
+    by_m = df.groupby("month")["active_kw_mean"].mean().reindex(range(1, 13))
+    axes[0].bar(by_m.index, by_m.values, color="steelblue")
+    axes[0].set_xticks(range(1, 13))
+    axes[0].set_title("Mean Hourly Active Power by Month")
+    axes[0].set_xlabel("Month")
+    axes[0].set_ylabel("Active Power (kW)")
+    mh = df.pivot_table(index="month", columns="hour", values="active_kw_mean", aggfunc="mean").reindex(range(1, 13))
+    sns.heatmap(mh, cmap="viridis", ax=axes[1], cbar_kws={"label": "kW"})
+    axes[1].set_title("Mean Active Power: Month x Hour of Day")
+    axes[1].set_xlabel("Hour of Day")
+    axes[1].set_ylabel("Month")
+    p5 = plots_dir / "eda_seasonal.png"
+    fig.tight_layout()
+    fig.savefig(p5, dpi=120)
+    plt.close(fig)
+    saved.append(str(p5))
     return saved
 
 

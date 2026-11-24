@@ -19,7 +19,7 @@ All tables are saved as CSV (UTF-8, ISO-8601 timestamps) and metadata as JSON fo
 
 ### `features.csv` (Key: `target_hour`)
 - `origin_hour`, `target_hour`, `split` (`train` | `val` | `test`), `actual_kw`
-- Calendar (known for `target_hour`): `target_hour_sin`, `target_hour_cos`, `target_dow_sin`, `target_dow_cos`, `is_weekend`, `target_month`
+- Calendar (known for `target_hour`): `target_hour_sin`, `target_hour_cos`, `target_dow_sin`, `target_dow_cos`, `is_weekend`, `target_month_sin`, `target_month_cos`
 - Causal lags & rolling stats (strictly $\le$ `origin_hour`): `active_kw_origin`, `active_kw_lag_2h_from_target`, `active_kw_lag_3h_from_target`, `active_kw_lag_24h_from_target`, `active_kw_lag_48h_from_target`, `active_kw_lag_168h_from_target`, `active_kw_roll_mean_3h`, `active_kw_roll_std_3h`, `active_kw_roll_mean_6h`, `active_kw_roll_std_6h`, `active_kw_roll_mean_24h`, `active_kw_roll_std_24h`
 - Causal electrical/circuit state at `origin_hour`: `reactive_kw_origin`, `voltage_v_origin`, `intensity_a_origin`, `sub1_wh_origin`, `sub2_wh_origin`, `sub3_wh_origin`, `origin_valid_minutes`
 

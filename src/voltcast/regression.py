@@ -151,6 +151,22 @@ def run_regression_stage(cfg: dict[str, Any], artifacts_dir: Path) -> Path:
     interp["best_model_val_permutation_importance"] = dict(zip(FEATURE_COLUMNS, [float(v) for v in perm.importances_mean]))
     (artifacts_dir / "regression_interpretation.json").write_text(json.dumps(interp, indent=2), encoding="utf-8")
 
+    panels = [("ridge_standardized_coef", "Ridge Standardized Coefficients"),
+              ("best_model_tree_importance", f"{best_model_name} Impurity Importance"),
+              ("best_model_val_permutation_importance", f"{best_model_name} Permutation Importance (val MAE)")]
+    panels = [(k, t) for k, t in panels if k in interp]
+    fig, axes = plt.subplots(1, len(panels), figsize=(6 * len(panels), 8))
+    axes = np.atleast_1d(axes)
+    for ax, (key, title) in zip(axes, panels):
+        s = pd.Series(interp[key]).sort_values(key=np.abs)
+        ax.barh(s.index, s.values, color=np.where(s.values >= 0, "steelblue", "indianred"))
+        ax.set_title(title, fontsize=10)
+        ax.tick_params(axis="y", labelsize=8)
+        ax.grid(axis="x", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(artifacts_dir / "plots" / "regression_importance.png", dpi=120)
+    plt.close(fig)
+
     # Diagnostic plots on test slice
     best_test = preds_df[(preds_df["model"] == best_model_name) & (preds_df["split"] == "test")].copy()
     best_test["residual"] = best_test["actual_kw"] - best_test["predicted_kw"]
